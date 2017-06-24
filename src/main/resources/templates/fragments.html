@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <body>
+    <div th:fragment="head">
+        <title>Appotron</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="https://www.w3schools.com/lib/w3.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    </div>
+    <div th:fragment="navigation">
+    <div class="w3-bar w3-teal">
+        <a class="w3-bar-item w3-button w3-teal w3-mobile" href="/">Front Page</a>
+        <div class="w3-dropdown-hover w3-mobile">
+            <button class="w3-button w3-teal">Add</button>
+            <div class="w3-dropdown-content w3-white w3-card-4">
+                <a href="/addfoodstuff">Foodstuff</a>
+                <a href="/addmeal">Meal</a>
+                <a href="/addrecipe">Recipe</a>
+             </div>
+        </div>
+        <a class="w3-bar-item w3-button w3-mobile" href="/pantry">Pantry</a>
+        <a class="w3-bar-item w3-button w3-mobile" href="/cookbook">Cook Book</a>
+        <div class="w3-dropdown-hover w3-mobile">
+            <button class="w3-button w3-teal">Meal Diary</button>
+            <div class="w3-dropdown-content w3-white w3-card-4">
+                <a href="/mealdiarytoday">Today</a>
+                <a href="/mealdiaryweek">Past Week</a>
+                <a href="/mealdiary">Search</a>
+             </div>
+        </div>
+        <a class="w3-bar-item w3-button w3-mobile" th:href="@{~/profile/{username} (username=${user.username})}" th:text="${user.username}" th:if="${user}" />
+        <a class="w3-bar-item w3-button w3-mobile" href="/login" th:if="${not user}">Login</a>
+        <a class="w3-bar-item w3-button w3-mobile" href="/logout" th:if="${user}">Logout</a>
+        <form method="get" action="/search">
+            <input type="text" class="w3-bar-item w3-input" name="query" placeholder="Search..." />
+            <input type="submit" class="w3-bar-item w3-button" value="Search"></input>
+        </form>
+    </div>
+    </div>
+    </body>
+</html>

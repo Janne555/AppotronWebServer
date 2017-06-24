@@ -1,0 +1,30 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:include="fragments :: head">
+        </head>
+    <head>
+    </head>
+    <body>
+    <div th:replace="fragments :: navigation">
+    </div>
+    <div class="w3-main">
+    <div class="w3-col m8 l4">
+    <div class="w3-card-4">
+    	<div class="w3-container w3-green">
+            <h2>Login</h2>
+        </div>
+    	<form class="w3-container" method="post" id="login">
+            <label class="w3-label" for="username">Username</label>
+            <input class="w3-input" type="text" name="username" /><br/>
+            <input hidden="true" type="text" name="redirect" th:value="${redirect}" />
+            <label class="w3-label" for="password">Password</label>
+            <input class="w3-input" type="password" name="password" /><br/>
+            <input class="w3-button w3-block w3-teal" type="submit" value="Submit" /><br/>
+        </form>
+    </div>
+
+    </div>
+    </div>
+    </body>
+</html>

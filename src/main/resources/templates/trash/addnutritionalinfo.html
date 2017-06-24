@@ -1,0 +1,67 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:include="fragments :: head">
+        </head>
+    <head>
+        <script>
+            /*<![CDATA[*/
+            $(document).on("keypress", "form", function(event) { 
+                return event.keyCode != 13;
+            });
+
+            $(document).ready(function(){
+                $("#scanbutton").click(function(){
+                    var name = $("#name").val();
+                    var url = "http://zxing.appspot.com/scan?ret=" + encodeURIComponent(window.location.href) + "%3Fserial%3D%7BCODE%7D%26name%3D" + encodeURIComponent(name) + "&SCAN_FORMATS=UPC_A,EAN_13";
+                    window.location.href = url;
+            })});
+
+            $(document).ready(function(){
+                $("#removetagbutton").click(function(){
+                    $("tr").remove(".w3-grey");
+            })});
+            
+            /*]]>*/
+
+        </script>
+        <style>
+        </style>
+    </head>
+    <body>width
+    <div th:replace="fragments :: navigation">
+    </div>
+    <div class="w3-main">
+    <div class="w3-col m6 l4 w3-card-4">
+        <form class="w3-container" action="/addnutritionalinfo.post" method="post">
+            <div class="w3-container w3-green">
+                <h2>Add Nutritional Information per 100 g</h2>
+            </div>
+            <label class="w3-label" for="serialNumber">Serial Number:</label>
+            <div class="w3-container w3-cell" style="width: 90%">
+            <input class="w3-input" type="text" name="serialNumber" required="true" id="serialNumber" th:value="${serialfield}"/>
+            </div>
+            <div class="w3-container w3-cell">
+            <input class="w3-button w3-teal" type="button" id="scanbutton" value="Scan" />
+            </div> <br/>
+
+            <label class="w3-label" for="serialNumber">Energy (kcal):</label>
+            <input class="w3-input" type="number" name="energy" required="true" id="energy" step="0.01" min="0" /><br/>
+
+            <label class="w3-label" for="serialNumber">Carbohydrate (grams):</label>
+            <input class="w3-input" type="number" name="carbohydrate" id="carbohydrate" step="0.01" min="0" /><br/>
+
+            <label class="w3-label" for="serialNumber">Fat (grams):</label>
+            <input class="w3-input" type="number" name="fat" id="fat" step="0.01" min="0" /><br/>
+
+            <label class="w3-label" for="serialNumber">Protein (grams):</label>
+            <input class="w3-input" type="number" name="protein" id="protein" step="0.01" min="0" /><br/>
+
+            <input class="w3-button w3-block w3-teal" type="submit" name="submit" value="Submit" /> <br />
+            <input class="w3-button w3-block w3-teal" type="reset" name="reset" value="Reset" /> <br />
+            
+        </form>
+    </div>
+    </div>
+    </body>
+</html>

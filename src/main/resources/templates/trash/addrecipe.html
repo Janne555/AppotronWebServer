@@ -1,0 +1,127 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:include="fragments :: head">
+    </head>
+    <head>
+        <script>
+            /*<![CDATA[*/
+            // $(document).on("keypress", "form", function(event) { 
+            //     return event.keyCode != 13;
+            // });
+
+            $(document).ready(function(){
+                $("#scanbutton").click(function(){
+                    var name = $("#name").val();
+                    // console.log(encodeURIComponent(window.location.href));
+                    var url = "http://zxing.appspot.com/scan?ret=" + encodeURIComponent(window.location.href) + "%3Fserial%3D%7BCODE%7D%26name%3D" + encodeURIComponent(name) + "&SCAN_FORMATS=UPC_A,EAN_13";
+                    window.location.href = url;
+            })});
+
+            $(document).ready(function(){
+                $("#searchbutton").click(function(){
+                    var xhr = new XMLHttpRequest();
+                    var param = $("#searchfield").val();
+                    xhr.open('GET', "/addmealsearch.get?param=" + param, true);
+                    xhr.send();
+                    xhr.addEventListener("readystatechange", processRequest, false);
+                    xhr.onreadystatechange = processRequest;
+                    var boolean = true;
+
+                    function processRequest(e) {
+                        if (xhr.readyState == 4 && xhr.status == 200 && boolean) {
+                            $("#searchresults").empty();
+                            var response = JSON.parse(xhr.responseText);
+                            for (i in response) {
+                                var name = response[i].name;
+                                var id = response[i].globalReferenceId;
+                                var identifier = response[i].identifier;
+                                var result = "<li id='" + id + "' class='w3-list-item' data-id='" + id + "' data-itemname='" + name + "' onClick='chooseThis(this)'>" + name + ", " + identifier +"</li>";
+                                $("#searchresults").append(result);
+                            }
+                            boolean = !boolean;
+                            
+                        }
+                    }
+
+                })
+            });
+            
+            function chooseThis(something) {
+                var itemname = something.dataset.itemname;
+                var id = something.dataset.id;
+                var row = "<tr id='row" + id + "'><td>" + itemname + "<input name='ingredients' value='" + id + "' hidden='true' /> </td><td><input class='w3-input' required='true' name='amountfor:" + id + "' type='number' min='0' step='0.1' placeholder='amount in grams' /></td><td><button class='w3-button' onClick='removeThis(" + '"row' + id + '"' + ")' type='button' >Remove</button></td></tr>";
+                if(!$("#row" + id).length) {
+                    $("#selectionstable").append(row);
+                }
+            }
+
+            function removeThis(identifier) {
+                $("#" + identifier).remove();
+            }
+
+            /*]]>*/
+
+        </script>
+    </head>
+    <body>
+    <div th:replace="fragments :: navigation">
+    </div>
+    <div class="w3-main w3-mobile">
+    <div class="w3-col m8 l5 w3-card-4 w3-mobile">
+        <div class="w3-container w3-green">
+            <h2>Add Recipe</h2>
+        </div>
+
+        <div class="w3-container">
+            <h3>Search for Ingredients</h3>
+            <div class="w3-container w3-cell" style="width: 90%">
+                <input class="w3-input" type="text" name="searchfield" id="searchfield" onkeydown="if (event.keyCode == 13) document.getElementById('searchbutton').click()" />
+            </div>
+            <div class="w3-container w3-cell">   
+                <button class="w3-button" id="searchbutton">Search</button>
+            </div>
+            <br />
+            <div>
+                <ul class="w3-ul w3-hoverable" id="searchresults"></ul>
+            </div>
+            </div>
+
+            <form class="w3-container" action="/addrecipe.post" method="post">
+            <h3>Selected Ingredients</h3>
+            <div class="w3-responsive">
+            <table id="selectionstable" class="w3-table">
+                <tr>
+                    <th>Name</th>
+                    <th>Amount</th>
+                </tr>
+            </table>
+            <br />
+            </div>
+            <h3>Name</h3>
+                <input class="w3-input" name="recipename" required="true" />
+            <br />
+            <h3>Recipe Type</h3>
+                <input class="w3-input" name="recipetype" required="true" placeholder="lunch, dessert, dinner etc"/>
+            <br />
+            <h3>Short description</h3>
+                <input class="w3-input" name="description" required="true" placeholder="sweet, salty, light etc"/>
+            <br /> 
+            <h3>Directions</h3>
+            <textarea class="w3-input" name="directions" required="true" />
+            <br />
+            <div class="w3-row-padding">
+                <div class="w3-half w3">
+                    <input class="w3-button w3-block w3-teal" type="reset" name="reset" value="Reset" />
+                </div>
+                <div class="w3-half">
+                    <input class="w3-button w3-block w3-teal" type="submit" name="submit" value="Submit" />
+                </div>
+            </div>
+            <br />
+        </form>
+
+    </div>
+    </div>
+    </body>
+</html>

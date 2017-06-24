@@ -1,0 +1,129 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:include="fragments :: head">
+    </head>
+    <head>
+    <script>
+            /*<![CDATA[*/
+            $(document).ready(function(){
+                $(".clickable-row").click(function(){
+                    window.location = $(this).data("href");
+            })});
+            /*]]>*/
+
+    </script>
+    </head>
+    <body>
+    <div th:replace="fragments :: navigation">
+    </div>
+    <div class="w3-main">
+    <div class="w3-col m11 l10 w3-card-4">
+        <div class="w3-container w3-green">
+            <h2 th:value="${title}">Search Results</h2>
+        </div>
+        <div class="w3-responsive" th:if="${items}">
+            <div class="w3-container w3-green" th:if="${search}">
+                <h3>Items</h3>
+            </div>
+            <table class="w3-table-all w3-hoverable">
+                <tr>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Serial Number</th>
+                    <th>Created</th>
+                </tr>
+                <tr class="clickable-row" th:each="item : ${items}" th:attr="data-href=@{~/view?id={id}&#38;type={type} (id=${item.id}, type=${item.type})}">
+                    <td th:text="${item.name}"></td>
+                    <td th:text="${item.location}"></td>
+                    <td th:text="${item.identifier}"></td>
+                    <td th:text="${item.date}"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="w3-responsive" th:if="${foodstuffs}">
+            <div class="w3-container w3-green" th:if="${search}">
+                <h3>Personal Foodstuffs</h3>
+            </div>
+            <table class="w3-table-all w3-hoverable">
+                <tr>
+                    <th>Name</th>
+                    <th>Producer</th>
+                    <th>Location</th>
+                    <th>Serial Number</th>
+                    <th>Created</th>
+                    <th>Expiration</th>
+                </tr>
+                <tr class="clickable-row" th:each="foodstuff : ${foodstuffs}" th:attr="data-href=@{~/viewfoodstuff?id={id} (id=${foodstuff.id})}">
+                    <td th:text="${foodstuff.name}"></td>
+                    <td th:text="${foodstuff.producer}"></td>
+                    <td th:text="${foodstuff.location}"></td>
+                    <td th:text="${foodstuff.identifier}"></td>
+                    <td th:text="${foodstuff.date}"></td>
+                    <td th:text="${foodstuff.expiration}"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="w3-responsive" th:if="${globalresults}">
+            <div class="w3-container w3-green" th:if="${search}">
+                <h3>Reference Database Foodstuffs</h3>
+            </div>
+            <table class="w3-table-all w3-hoverable">
+                <tr>
+                    <th>Name</th>
+                    <th>Producer</th>
+                    <th>Serial Number</th>
+                </tr>
+                <tr class="clickable-row" th:each="foodstuff : ${globalresults}" th:attr="data-href=@{~/viewglobalfoodstuff?id={id} (id=${foodstuff.id})}">
+                    <td th:text="${foodstuff.name}"></td>
+                    <td th:text="${foodstuff.producer}"></td>
+                    <td th:text="${foodstuff.identifier}"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="w3-responsive" th:if="${books}">
+            <div class="w3-container w3-green" th:if="${search}">
+                <h3>Books</h3>
+            </div>
+            <table class="w3-table-all w3-hoverable">
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Location</th>
+                    <th>ISBN</th>
+                    <th>Publisher</th>
+                    <th>Publishing Year</th>
+                </tr>
+                <tr class="clickable-row" th:each="item : ${books}" th:attr="data-href=@{~/view?id={id}&#38;type={type} (id=${item.id}, type=${item.type})}">
+                    <td th:text="${item.name}"></td>
+                    <td th:text="${item.author}"></td>
+                    <td th:text="${item.location}"></td>
+                    <td th:text="${item.identifier}"></td>
+                    <td th:text="${item.publisher}"></td>
+                    <td th:text="${item.year}"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="w3-responsive" th:if="${recipes}">
+            <div class="w3-container w3-green" th:if="${search}">
+                <h3>Recipes</h3>
+            </div>
+            <table class="w3-table-all w3-hoverable">
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Calories</th>
+                </tr>
+                <tr class="clickable-row" th:each="item : ${recipes}" th:attr="data-href=@{~/viewrecipe?id={id} (id=${item.id})}">
+                    <td th:text="${item.name}"></td>
+                    <td th:text="${item.type}"></td>
+                    <td th:text="${item.description}"></td>
+                    <td th:text="${item.caloriesRelative}"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    </div>
+    </body>
+</html>

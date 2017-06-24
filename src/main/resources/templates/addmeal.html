@@ -1,0 +1,159 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:include="fragments :: head">
+    </head>
+    <head>
+        <script>
+            /*<![CDATA[*/
+            $(document).on("keypress", "form", function (event) {
+                return event.keyCode != 13;
+            });
+
+            $(document).ready(function () {
+                $("#removetagbutton").click(function () {
+                    $("tr").remove(".w3-grey");
+                })
+            });
+
+            $(document).ready(function () {
+                $("#searchbutton").click(function () {
+                    var xhr = new XMLHttpRequest();
+                    var param = $("#searchfield").val();
+                    xhr.open('GET', "/addmealsearch.get?param=" + param, true);
+                    xhr.send();
+                    xhr.addEventListener("readystatechange", processRequest, false);
+                    xhr.onreadystatechange = processRequest;
+                    var boolean = true;
+
+                    function processRequest(e) {
+                        if (xhr.readyState == 4 && xhr.status == 200 && boolean) {
+                            $("#searchresults").empty();
+                            var response = JSON.parse(xhr.responseText);
+                            for (i in response) {
+                                var name = response[i].name;
+                                var identifier = response[i].globalReferenceId;
+                                var producer = response[i].producer;
+                                var result = "<li id='" + identifier + "' class='w3-list-item' data-id='" + identifier + "' data-itemname='" + name + "' onClick='chooseThis(this)'>" + name + ", " + identifier + ", " + producer + "</li>";
+                                $("#searchresults").append(result);
+                            }
+                            boolean = !boolean;
+
+                        }
+                    }
+
+                })
+            });
+
+            function chooseThis(something) {
+                var itemname = something.dataset.itemname;
+                var id = something.dataset.id;
+                var row = "<tr id='row" + id + "'><td>" + itemname + "<input name='ingredients' value='" + id + "' hidden='true' /> </td><td><input class='w3-input' required='true' name='amountfor:" + id + "' type='number' min='0' step='0.1' placeholder='amount in grams' /></td><td><button class='w3-button' onClick='removeThis(" + '"row' + id + '"' + ")' type='button' >Remove</button></td></tr>";
+                if (!$("#row" + id).length) {
+                    $("#th01").after(row);
+                }
+            }
+
+            function removeThis(identifier) {
+                $("#" + identifier).remove();
+            }
+            /*]]>*/
+
+        </script>
+    </head>
+    <body>
+        <div th:replace="fragments :: navigation">
+        </div>
+        <div class="w3-main">
+            <div class="w3-col m10 l5 w3-card-4">
+                <div class="w3-container w3-green">
+                    <h2 th:text="${title}">Meal</h2>
+                </div>
+
+                <div class="w3-container w3-margin w3-padding">
+                    <h3>Search for Foodstuffs</h3>
+                    <br />
+                    <div class="w3-container w3-cell" style="width: 90%">
+                        <input class="w3-input" type="text" name="searchfield" id="searchfield" onkeydown="if (event.keyCode == 13)
+                            document.getElementById('searchbutton').click()"/>
+                    </div>
+                    <div class="w3-container w3-cell">   
+                        <button class="w3-button" id="searchbutton" >Search</button>
+                    </div>
+                    <br />
+                    <div style="max-height: 150px; overflow-y: scroll;">
+                        <ul class="w3-ul w3-hoverable" id="searchresults"></ul>
+                    </div>
+                </div>
+
+
+                <div class="w3-container w3-margin">
+                    <h3>Selected</h3>
+                    <br />
+                    <form class="w3-container" th:action="${action}" method="post">
+                        <div class="w3-responsive" th:unless="${meal}">
+                            <table id="selectionstable" class="w3-table-all">
+                                <tr id="th01">
+                                    <th>Name</th>
+                                    <th>Mass</th>
+                                    <th></th>
+                                </tr>
+                                <tr th:each="selection : ${selections}" th:id="|row${selection.globalReferenceId}|">
+                                    <td><span th:text="${selection.name}" /><input name='ingredients' th:value="${selection.globalReferenceId}" hidden='true' /></td>
+                                    <td><input class='w3-input' required='true' th:name="|amountfor:${selection.globalReferenceId}|" type='number' min='0' step='0.1' placeholder='amount in grams'/><input hidden="true" type="text" name="|mealcomponentid:${selection.id}|" /></td>
+                                    <td><button class='w3-button' th:onClick="|removeThis('row${selection.globalReferenceId}')|" type='button' >Remove</button></td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>
+                        <div class="w3-responsive" th:if="${meal}">
+                            <input type="text" hidden="true" th:value="${meal.id}" name="mealid" />
+                            <input class="w3-input" type="datetime-local" required="true" name="datetime" th:value="${date}" />
+                            <table id="selectionstable" class="w3-table-all">
+                                <tr> 
+                                    <th>Name</th>
+                                    <th>Mass</th>
+                                    <th></th>
+                                </tr>
+                                <tr th:each="selection : ${meal.components}" th:id="|row${selection.globalReferenceId}|">
+                                    <td><span th:text="${selection.name}" /><input name='ingredients' th:value="${selection.globalReferenceId}" hidden='true' /></td>
+                                    <td><input class='w3-input' required='true' th:name="|amountfor:${selection.globalReferenceId}|" type='number' min='0' step='1' placeholder='amount in grams' th:value="${selection.mass}" /><input hidden="true" type="text" name="|globrefid:${selection.globalReferenceId}|" th:value="${selection.id}" /></td>
+                                    <td><button class='w3-button' th:onClick="|removeThis('row${selection.globalReferenceId}')|" type='button' >Remove</button></td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>
+
+
+                        <div th:if="${addrecipe}">
+                            <h3>Finished Mass</h3>
+                            <input class="w3-input" type="number" min="0" name="totalmass" placeholder="the mass after cooking is complete" required="true" />
+                            <br />
+                            <h3>Name</h3>
+                            <input class="w3-input" type="text" name="recipename" placeholder="name" required="true" />
+                            <br />
+                            <h3>Recipe Type</h3>
+                            <input class="w3-input" type="text" name="recipetype" required="true" placeholder="lunch, dessert, dinner etc"/>
+                            <br />
+                            <h3>Short description</h3>
+                            <input class="w3-input" type="text" name="description" required="true" placeholder="sweet, salty, light etc"/>
+                            <br /> 
+                            <h3>Directions</h3>
+                            <textarea class="w3-input" name="directions" required="true" placeholder="directions" />
+                            <br />
+                        </div>
+
+                        <div class="w3-row-padding">
+                            <div class="w3-half w3">
+                                <input class="w3-button w3-block w3-teal" type="reset" name="reset" value="Reset" />
+                            </div>
+                            <div class="w3-half">
+                                <input class="w3-button w3-block w3-teal" type="submit" name="submit" value="Submit" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

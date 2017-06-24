@@ -1,0 +1,46 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:include="fragments :: head">
+        </head>
+    <head>
+        <script th:inline="javascript">
+        /*<![CDATA[*/
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', "http://localhost:4567/tags.get", true);
+            xhr.send();
+            xhr.addEventListener("readystatechange", processRequest, false);
+            xhr.onreadystatechange = processRequest;
+            if (isLocalHost()){
+                if (typeof(netscape) != 'undefined' && typeof(netscape.security) != 'undefined'){
+                  netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
+                }
+              }
+            function processRequest(e) {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    for (i in response) {
+                        var table = document.getElementById("t01");
+                        var key = response[i].key;
+                        var value = response[i].value;
+                        var row = table.insertRow(1);
+                        var cell1 = row.insertCell(0);
+                        var cell2 = row.insertCell(1);
+                        cell1.innerHTML = key;
+                        cell2.innerHTML = value;
+                    }
+                }
+            }
+            /*]]>*/
+        </script>
+    </head>
+    <body>
+    <p id="p01"></p>
+    <table id="t01">
+        <tr>
+            <td>Key</td>
+            <td>Value</td>
+        </tr>
+    </table>
+    </body>
+</html>

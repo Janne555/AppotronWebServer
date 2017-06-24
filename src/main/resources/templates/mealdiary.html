@@ -1,0 +1,207 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:include="fragments :: head">
+    </head>
+    <head>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <style>
+            input[type=number]::-webkit-inner-spin-button, 
+            input[type=number]::-webkit-outer-spin-button { 
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                margin: 0; 
+            }
+        </style>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            function myFunction(id) {
+                var x = document.getElementById(id);
+                if (x.className.indexOf("w3-show") == -1) {
+                    x.className += " w3-show";
+                } else {
+                    x.className = x.className.replace(" w3-show", "");
+                }
+            }
+
+
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.setOnLoadCallback(drawPieChart);
+            function drawPieChart() {
+
+                var data = google.visualization.arrayToDataTable([
+                  ['Source', 'Percentage'],
+                  ['Carbohydrate',     [[${carbs}]]],
+                  ['Fat',      [[${fat}]]],
+                  ['Protein',  [[${protein}]]]
+                ]);
+
+                var options = {
+                    title: 'Calorie Sources',
+                    width: 600,
+                    height: 400
+                };
+
+                var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+                chart.draw(data, options);
+            }
+            /*]]>*/
+        </script>
+        <script th:inline="javascript" th:if="${columnchart}">
+            /*<![CDATA[*/
+            google.charts.setOnLoadCallback(drawColumnChart);
+
+            function drawColumnChart() {
+
+                var array = /*[[${dailyaverages}]]*/ null;
+                var dataArray = [['Date', 'Calories', { role: 'style' } ]];
+                for (i in array) {
+                    var subArray = [];
+                    var date = array[i].date;
+                    var calories = array[i].calories;
+                    subArray.push(date);
+                    subArray.push(calories);
+                    subArray.push("blue");
+                    dataArray.push(subArray);
+                }
+
+                console.log(dataArray);
+
+              var data = google.visualization.arrayToDataTable(dataArray);
+
+              var view = new google.visualization.DataView(data);
+              view.setColumns([0, 1,
+                               { calc: "stringify",
+                                 sourceColumn: 1,
+                                 type: "string",
+                                 role: "annotation" },
+                               2]);
+
+              var options = {
+                title: "Caloric Intake",
+                width: 600,
+                height: 400,
+                bar: {groupWidth: "95%"},
+                legend: { position: "none" },
+              };
+              var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
+              chart.draw(view, options);
+          }
+
+            /*]]>*/
+        </script>
+    </head>
+    <body>
+        <div th:replace="fragments :: navigation">
+        </div>
+        <div class="w3-main">
+            <div th:unless="${meals}">
+                <div class="w3-col m9 l6 w3-card-4">
+                    <div class="w3-container w3-green">
+                        <h2>Search for meals</h2>
+                    </div>
+                    <div class="w3-container w3-margin">
+                    <form class="w3-container" method="get" action="/mealdiary">
+                        <div class="w3-row-padding">
+                            <div class="w3-half">
+                                <label class="w3-label" for="from">From</label>
+                                <input class="w3-input" type="date" name="from" id="from" />
+                            </div>
+                            <div class="w3-half">
+                                <label class="w3-label" for="to">To</label>
+                                <input class="w3-input" type="date" name="to" id="to" />
+                            </div>
+                        </div>
+                        <br />
+                        <div class="w3-row-padding">
+                            <div class="w3-half">
+                                <input class="w3-button" type="reset" value="Reset" />
+                            </div>
+                            <div class="w3-half">
+                                <input class="w3-button" type="submit" value="Submit" />
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${results}">
+                <div class="w3-col m12 l10">
+                    <div class="w3-card-4">
+                        <div class="w3-container w3-green">
+                            <h2 th:text="${title}">Averages over Results</h2>
+                        </div>
+                        <div class="w3-row-padding">
+                            <div class="w3-quarter">
+                                <div class="w3-panel w3-blue w3-card-8 w3-round">
+                                    <p>Calories</p>
+                                    <p th:text="|${calories} kcal|">joujou</p>
+                                </div>
+                            </div>
+                            <div class="w3-quarter">
+                                <div class="w3-panel w3-blue w3-card-8 w3-round">
+                                    <p>Carbohydrate</p>
+                                    <p th:text="|${carbs} g|" />
+                                </div>
+                            </div>
+                            <div class="w3-quarter">
+                                <div class="w3-panel w3-blue w3-card-8 w3-round">
+                                    <p>Protein</p>
+                                    <p th:text="|${protein} g|" />
+                                </div>
+                            </div>
+                            <div class="w3-quarter">
+                                <div class="w3-panel w3-blue w3-card-8 w3-round">
+                                    <p>Fat</p>
+                                    <p th:text="|${fat} g|" />
+                                </div>
+                            </div>
+                        </div><br />
+
+
+                        <div class="w3-hide-small w3-row">
+                            <div class="w3-half">
+                                <div class="w3-container" id="piechart"></div>
+                            </div>
+
+                            <div class="w3-half" th:if="${columnchart}">
+                                <div class="w3-container" id="columnchart_values"></div>
+                            </div>
+
+                        </div>
+
+                        <div class="w3-container w3-green">
+                            <h2 th:text="${subtitle}">Results</h2>
+                        </div>
+
+                        <div th:each="meal: ${meals}">
+                            <button th:onclick="|myFunction('${meal.id}')|" class="w3-button w3-block w3-left-align" >Date: <span th:text="${meal.time}" />, <a th:href="@{~/viewmeal?id={id} (id=${meal.id})}" >View</a></button>
+                            <div th:attr="id=${meal.id}" class="w3-hide w3-container">
+                                <ul class="w3-ul w3-hoverable" th:each="component: ${meal.components}">
+                                    <li><span th:text="${component.name}"></span>, <span th:text="${component.mass}"></span> g<div class="w3-hide-small" style="display: inline;">, Calories <span th:text="${component.totalCaloriesRounded}" /> kcal, Carbohydrate <span th:text="${component.totalCarbohydrateRounded}" /> g, Fat <span th:text="${component.totalFatRounded}" /> g, Protein <span th:text="${component.totalProteinRounded}" /> g</div></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="w3-center" style=""><span>
+                            <a th:href="@{~/mealdiary?from={fromStr}&#38;to={toStr}&#38;page=1 (fromStr=${fromStr}, toStr=${toStr})}" id="first">First</a>
+                            <a th:href="@{~/mealdiary?from={fromStr}&#38;to={toStr}&#38;page={page} (fromStr=${fromStr}, toStr=${toStr}, page=${prevPage})}" id="prev">&#60;</a>
+                            <form method="get" th:action="|/mealdiary?from=${fromStr}&#38;to=${toStr}|" style="display: inline;">
+                                <input class="w3-input" type="number" name="page" min="0" th:max="${maxpage}" th:value="${currentPage}" style="display: inline; width: 45px;" />
+                            </form>
+                            <a th:href="@{~/mealdiary?from={fromStr}&#38;to={toStr}&#38;page={page} (fromStr=${fromStr}, toStr=${toStr}, page=${nextPage})}" id="next">&#62;</a>
+                            <a th:href="@{~/mealdiary?from={fromStr}&#38;to={toStr}&#38;page={page} (fromStr=${fromStr}, toStr=${toStr}, page=${lastPage})}" id="last">Last</a>
+                            </span>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:include="fragments :: head">
+        </head>
+    <head>
+        <script>
+            /*<![CDATA[*/
+            //BUG SECURITY YOU CAN ENTER CODE TO FUNK UP THE URL
+            $(document).ready(function(){
+                $("#scanbutton").click(function(){
+                    var name = $("#name").val();
+                    var url = "http://zxing.appspot.com/scan?ret=" + encodeURIComponent(window.location.href) + "%3Fserial%3D%7BCODE%7D%26name%3D" + encodeURIComponent(name) + "&SCAN_FORMATS=UPC_A,EAN_13";
+                    window.location.href = url;
+            })});
+
+            $(document).ready(function(){
+                $("#searchbutton").click(function(){
+                    var xhr = new XMLHttpRequest();
+                    var param = $("#search").val();
+                    console.log(param);
+                    xhr.open('GET', "/meals.get?param=" + param, true);
+                    xhr.send();
+                    xhr.addEventListener("readystatechange", processRequest, false);
+                    xhr.onreadystatechange = processRequest;
+                    var boolean = true;
+
+                    function processRequest(e) {
+                        if (xhr.readyState == 4 && xhr.status == 200 && boolean) {
+                            var response = JSON.parse(xhr.responseText);
+                            for (i in response) {
+                                var table = document.getElementById("searchresults");
+                                var name = response[i].name;
+                                var type = response[i].type;
+                                var id = response[i].identifier;
+                                var row = table.insertRow(1);
+                                var cell1 = row.insertCell(0);
+                                var cell2 = row.insertCell(1);
+                                var cell3 = row.insertCell(2);
+                                cell1.innerHTML = name;
+                                cell2.innerHTML = type;
+                                cell2.innerHTML = id;
+                            }
+                            boolean = !boolean;
+                            
+                        }
+                    }
+
+                })
+            });
+
+            $(document).ready(function(){
+                $("#searchresults").on("click", "tr", function(){
+                    if ($(this).attr("class") != "header") {
+                        $("selected").val($(this).children("td.first").text());
+                        $("identifier").val($(this).children("td.last").text());
+                    }
+            })});
+
+
+            /*]]>*/
+
+        </script>
+        <style>
+        </style>
+    </head>
+    <body>
+    <div th:replace="fragments :: navigation">
+    </div>
+    <div class="w3-main">
+    <div class="w3-col m6 l4 w3-card-4 w3-margin">
+        <form class="w3-container" action="/addserving.post" method="post">
+            <div class="w3-container w3-green">
+                <h2>Serving Info</h2>
+            </div>
+            <label class="w3-label" for="search">Search:</label><br />
+            <input class="w3-input" type="text" name="search" id="search"/><br />
+            <div class="w3-row-padding">
+                 <div class="w3-half">
+                    <input class="w3-input w3-border w3-teal" type="button" id="scanbutton" disabled="true" value="Scan for Barcode" />
+                 </div>
+                 <div class="w3-half">
+                    <input class="w3-input w3-border w3-teal" type="button" id="searchbutton" value="Search" />
+                 </div>
+            </div><br />
+            <table class="w3-table-all w3-responsive" id="searchresults">
+                <tr class="header" id="header">
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Ingredients</th>
+                </tr>
+            </table>
+            <div class="w3-row-padding">
+                 <div class="w3-half">
+                    <label class="w3-label">Selected: </label>
+                    <input class="w3-input" type="text" id="selected" required="true" disabled="true"/>
+                    <input type="text" id="identifier" hidden="true" />
+                 </div>
+                 <div class="w3-half">
+                    <label class="w3-label">Mass (grams): </label>
+                    <input class="w3-input" type="number" id="mass" required="true" step="0.01" min="0" />
+                 </div>
+            </div><br />
+
+            <input class="w3-button w3-block w3-teal" type="submit" name="submit" value="Submit" /> <br />
+            <input class="w3-button w3-block w3-teal" type="reset" name="reset" value="Reset" /> <br />
+        </form>
+    </div>
+    </div>
+    </body>
+</html>

@@ -1,0 +1,14 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:include="fragments :: head">
+    </head>
+    <body>
+        <div th:replace="fragments :: navigation">
+        </div>
+        <form action="/addfoodstuffdatabase.post" method="post">
+            <input type="textarea" name="input" />
+            <input type="submit" />
+        </form>
+    </body>
+</html>

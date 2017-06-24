@@ -1,0 +1,170 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:include="fragments :: head">
+    </head>
+    <head>
+        <script>
+            /*<![CDATA[*/
+            $(document).on("keypress", "form", function(event) { 
+                return event.keyCode != 13;
+            });
+
+            $(document).ready(function(){
+                $("#tagstable").on("click", "tr", function(){
+                    if ($(this).attr("class") != "header") {
+                        $(this).addClass('w3-grey').siblings().removeClass('w3-grey');
+                    }
+            })});
+
+            $(document).ready(function(){
+                $("#scanbutton").click(function(){
+                    var name = $("#name").val();
+                    // console.log(encodeURIComponent(window.location.href));
+                    var url = "http://zxing.appspot.com/scan?ret=" + encodeURIComponent(window.location.href) + "%3Fserial%3D%7BCODE%7D%26name%3D" + encodeURIComponent(name) + "&SCAN_FORMATS=UPC_A,EAN_13";
+                    window.location.href = url;
+            })});
+
+            $(document).ready(function(){
+                $("#removetagbutton").click(function(){
+                    $("tr").remove(".w3-grey");
+            })});
+
+
+            //BUG YOU CAN ENTER MULTIPLE TAGS WITH THE SAME KEY!!!
+            $(document).ready(function(){
+                $("#addtagbutton").click(function(){
+                    var key = $("#keyinput").val();
+                    var val = $("#valueinput").val();
+                    $("#keyinput").val("");
+                    $("#valueinput").val("");
+                    if (key.length > 0 && val.length > 0) {
+                        $("#newtags").show();
+                        $("#tagstable tr:last").after("<tr><td>" + key + "<input type='hidden' name='tag:" + key + "' value=' " + val + "' </td><td>" + val + "</td></tr>");
+                    } else {
+                        alert("Field(s) can't be empty!")
+                    }
+
+            })});
+
+            $(document).ready(function(){
+                $("#typechooser").change(function(){
+                    var val = $("#typechooser").val();
+                    if (val == "foodstuff") {
+                        $("#datepicker").show();
+                    } else {
+                        $("#datepicker").hide();
+                    }
+            })});
+
+            $(document).ready(function(){
+                $("#searchbutton").click(function(){
+                    var xhr = new XMLHttpRequest();
+                    var param = $("#serialNumber").val();
+                    console.log(param);
+                    xhr.open('GET', "/tags.get?param=" + param, true);
+                    xhr.send();
+                    xhr.addEventListener("readystatechange", processRequest, false);
+                    xhr.onreadystatechange = processRequest;
+                    $("#headerold").siblings().remove();
+                    var boolean = true;
+                    function processRequest(e) {
+                        if (xhr.readyState == 4 && xhr.status == 200 && boolean) {
+                            var response = JSON.parse(xhr.responseText);
+                            for (i in response) {
+                                var table = document.getElementById("oldtagstable");
+                                var key = response[i].key;
+                                var value = response[i].value;
+                                var row = table.insertRow(1);
+                                var cell1 = row.insertCell(0);
+                                var cell2 = row.insertCell(1);
+                                cell1.innerHTML = key;
+                                cell2.innerHTML = value;
+                            }
+                            boolean = !boolean;
+                            
+                        }
+                        $("#oldtags").show();
+                    }
+
+                })
+            });
+            /*]]>*/
+
+        </script>
+    </head>
+    <body>
+    <div th:replace="fragments :: navigation">
+    </div>
+    <div class="w3-main">
+    <div class="w3-col m6 l4 w3-card-4 w3-margin">
+        <form class="w3-container" action="/additem.post" method="post">
+                <div class="w3-container w3-green">
+                    <h2>Basic Info</h2>
+                </div>
+                <label class="w3-label" for="typechooser">Type:</label>
+                <select class="w3-select" name="type" id="typechooser" required="true">
+                    <option value="" disabled="true" selected="true">Choose type</option>
+                    <option value="book">Book</option>
+                    <option value="foodstuff">Foodstuff</option>
+                    <option value="item">Item</option>
+                </select><br/>
+                <label class="w3-label" for="location">Location:</label>
+                <input class="w3-input" list="locationslist" required="true" name="location" id="location" />
+                <datalist id="locationslist">    
+                    <option th:each="location: ${locations}" th:value="${location}" />
+                </datalist>
+                <label class="w3-label" for="name">Name:</label>
+                <input class="w3-input" type="text" name="name" required="true" id="name" th:value="${namefield}" /><br/>
+                <label class="w3-label" for="serialNumber">Serial Number:</label>
+                <div class="w3-container w3-cell" style="width: 90%">
+                <input class="w3-input" type="text" name="serialNumber" required="true" id="serialNumber" th:value="${serialfield}"/>
+                </div>
+                <div class="w3-container w3-cell">
+                <input class="w3-button w3-teal" type="button" id="scanbutton" value="Scan" />
+                </div> <br/>
+                <input class="w3-button w3-block w3-teal" type="button" id="searchbutton" value="Search for Tags" />
+                
+                <br/>
+                <div class="w3-container w3-green">
+                    <h2>Tags</h2>
+                </div>
+                <div id="tagdiv">
+                    <div class="w3-margin" id="oldtags" style="display: none;">
+                    <label class="w3-label" for="oldtags">Tags Associated with serial number</label>
+                    <div class="w3-responsive">
+                        <table class="w3-table-all" id="oldtagstable">
+                            <tr id="headerold">
+                                <th>Key</th>
+                                <th>Value</th>
+                            </tr>
+                        </table>
+                    </div>
+                    </div>
+                    <label class="w3-label" for="tagkey">Key:</label>
+                    <input class="w3-input" type="text" name="tagkey" id="keyinput" /> <br />
+                    <label class="w3-label" for="tagvalue">Value:</label>
+                    <input class="w3-input" type="text" name="tagvalue" id="valueinput" /><br />
+                    <input class="w3-button w3-block w3-teal" type="button" id="addtagbutton" value="Add Tag" /><br />
+                    <div class="w3-responsive" id="newtags" style="display: none;">
+                        <table class="w3-table-all" id="tagstable">
+                            <tr class="header">
+                                <th>Key</th>
+                                <th>Value</th>
+                            </tr>
+                        </table>
+                        <input class="w3-button w3-block w3-teal" type="button" id="removetagbutton" value="Remove Tag" /><br />
+                    </div>
+                </div>
+            <div id="datepicker" style="display: none">
+                <span>Expiration Date:</span><br/>
+                <input class="w3-input" type="date" name="expiration" /><br/>
+            </div>
+            <input class="w3-button w3-block w3-teal" type="submit" name="submit" value="Submit" /> <br />
+            <input class="w3-button w3-block w3-teal" type="reset" name="reset" value="Reset" /> <br />
+            
+        </form>
+    </div>
+    </div>
+    </body>
+</html>

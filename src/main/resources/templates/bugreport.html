@@ -1,0 +1,28 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:include="fragments :: head">
+    </head>
+    <head>
+    </head>
+    <body>
+    <div th:replace="fragments :: navigation">
+    </div>
+    <div class="w3-main">
+    <div class="w3-col m8 l4 w3-card-4">
+        <div class="w3-container w3-green">
+            <h2>Bug Report</h2>
+        </div>
+        <form class="w3-margin" method="post" action="/bugreport.post">
+            <label class="w3-label" for="subject">Subject</label>
+            <input class="w3-input" type="text" name="subject" />
+            <br />
+            <label class="w3-label" for="subject">Description</label>
+            <textarea class="w3-input" name="description" />
+            <br />
+            <input class="w3-button w3-block" type="submit" name="submit" value="Submit" />
+        </form>
+    </div>
+    </div>
+    </body>
+</html>

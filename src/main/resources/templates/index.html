@@ -1,0 +1,74 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:include="fragments :: head">
+        </head>
+    <head>
+    </head>
+    <body>
+    <div th:replace="fragments :: navigation">
+    </div>
+    <div class="w3-main">
+    <div class="w3-col m8 l5">
+    
+        <div class="w3-card-4">
+
+        	<div class="w3-container w3-green">
+                <h2>Expiring Foodstuffs</h2>
+            </div>
+            <div class="w3-row-padding">
+                <div class="w3-responsive w3-panel">
+                	<table class="w3-table">
+                		<tr>
+                			<th>Name</th>
+                			<th>Expires</th>
+                			<th>Location</th>
+                		</tr>
+                        <tr th:each="foodstuff: ${foodstuffs}">
+                            <td th:text="${foodstuff.name}">first</td>
+                            <td th:text="${foodstuff.expires}">0</td>
+                            <td th:text="${foodstuff.location}">asd</td>
+                        </tr>
+                	</table>
+        </div>
+    </div>    
+    </div>
+    <div class="w3-card-4" th:if="${calories}">
+        <div class="w3-container w3-green">
+            <h2>Today's Calorie Count</h2>
+        </div>
+        <div class="w3-row-padding">
+        <div class="w3-panel w3-blue w3-card-8 w3-round">
+        <h3><span th:text="${calories}"></span> kcal</h3>
+        </div>
+        </div>
+    </div>
+        <div class="w3-card-4" th:if="${sincelastmeal}">
+        <div class="w3-container w3-green">
+            <h2>Since Last Meal</h2>
+        </div>
+        <div class="w3-row-padding">
+        <div class="w3-panel w3-blue w3-card-8 w3-round">
+        <h3><span th:text="|${sincelastmealhours} hours and ${sincelastmealminutes} minutes|"></span></h3>
+        </div>
+        </div>
+    </div>
+    <div class="w3-card-4 w3-margin" th:if="${listitems}">
+    	<div class="w3-container w3-green">
+            <h2>Shopping List</h2>
+        </div>
+    	<table class="w3-table-all w3-responsive">
+    		<tr>
+    			<th>Name</th>
+    			<th>Amount</th>
+    		</tr>
+	        <tr th:each="item: ${listitems}">
+	            <td th:text="${item.itemName}">first</td>
+	            <td th:text="${item.amount}">asd</td>
+	        </tr>
+    	</table>
+    </div>
+    </div>
+    </div>
+    </body>
+</html>

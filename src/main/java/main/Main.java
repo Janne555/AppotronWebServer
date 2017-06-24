@@ -5,7 +5,15 @@
  */
 package main;
 
+import daos.BugReportDao;
+import daos.FoodstuffDao;
+import daos.PermissionDao;
+import daos.SessionControlDao;
 import daos.UserDao;
+import daos.mealdiary.CookingDao;
+import daos.mealdiary.IngredientDao;
+import daos.mealdiary.MealComponentDao;
+import daos.mealdiary.MealDao;
 import database.Database;
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,7 +29,8 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import storables.User;
 import utilities.PasswordUtil;
-import mealdiary.*;
+import mealdiary.WebMethods;
+import utilities.DaoContainer;
 
 /**
  *
@@ -96,7 +105,20 @@ public class Main {
             UserDao udao = new UserDao(database);
             udao.store(new User(System.getProperties().getProperty("defaultUserIdentifier"), System.getProperties().getProperty("defaultUserName"), PasswordUtil.hashPassword(System.getProperties().getProperty("defaultUserPassword")), null, null));
         }
+        
+        
+        
+        DaoContainer daos = new DaoContainer(
+                new UserDao(database), 
+                new MealDao(database), 
+                new MealComponentDao(database), 
+                new SessionControlDao(database), 
+                new IngredientDao(database), 
+                new CookingDao(database), 
+                new FoodstuffDao(database), 
+                new BugReportDao(database), 
+                new PermissionDao(database));
 
-        new WebMethods(database);
+        new WebMethods(daos);
     }
 }

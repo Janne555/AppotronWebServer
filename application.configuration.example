@@ -1,0 +1,8 @@
+postgre_address=jdbc:postgresql://localhost:5432/appotron
+postgre_user=[user]
+postgre_password=[password]
+formatDatabase=false
+insertDefaultUser=false
+defaultUserName=[username]
+defaultUserPassword=[password]
+defaultUserIdentifier=[identifier]
