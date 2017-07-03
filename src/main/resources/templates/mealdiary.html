@@ -159,15 +159,73 @@
                                     <p th:text="|${fat} g|" />
                                 </div>
                             </div>
-                        </div><br />
+                        </div>
+                        <br />
+                        <div class="w3-container">
+                            <ul>
+                                <li style="float: left; padding-right: 30px;" th:text="|Iron: ${iron} mg (${dailyiron} %)|"></li>
+                                <li style="float: left; padding-right: 30px;" th:text="|Sodium: ${sodium} mg (${dailysodium} %)|"></li>
+                                <li style="float: left; padding-right: 30px;" th:text="|Potassium: ${potassium} mg (${dailypotassium} %)|"></li>
+                                <li style="float: left; padding-right: 30px;" th:text="|Calcium: ${calcium} mg (${dailycalcium} %)|"></li>
+                                <li style="float: left; padding-right: 30px;" th:text="|Vitamin B12: ${vitb12} mg (${dailyvitb12} %)|"></li>
+                                <li style="float: left; padding-right: 30px;" th:text="|Vitamin C: ${vitc} mg (${dailyvitc} %)|"></li>
+                                <li style="float: left; padding-right: 30px;" th:text="|Vitamin D: ${vitd} mg (${dailyvitd} %)|"></li>
+                            </ul>
+                        </div>
 
+
+                        <!-- <div class="w3-cell-row">
+                                <div class="w3-container w3-cell">
+                                    <div class="w3-panel w3-blue w3-card-8 w3-round">
+                                        <p>Iron</p>
+                                        <p th:text="|${iron} mg (${dailyiron} %)|" />
+                                    </div>
+                                </div>
+                                <div class="w3-container w3-cell">
+                                    <div class="w3-panel w3-blue w3-card-8 w3-round">
+                                        <p>Sodium</p>
+                                        <p th:text="|${sodium} mg (${dailysodium} %)|" />
+                                    </div>
+                                </div>
+                                <div class="w3-container w3-cell">
+                                    <div class="w3-panel w3-blue w3-card-8 w3-round">
+                                        <p>Potassium</p>
+                                        <p th:text="|${potassium} mg (${dailypotassium} %)|" />
+                                    </div>
+                                </div>
+                                <div class="w3-container w3-cell">
+                                    <div class="w3-panel w3-blue w3-card-8 w3-round">
+                                        <p>Calcium</p>
+                                        <p th:text="|${calcium} mg (${dailycalcium} %)|" />
+                                    </div>
+                                </div>
+                                <div class="w3-container w3-cell">
+                                    <div class="w3-panel w3-blue w3-card-8 w3-round">
+                                        <p>Vitamin B12</p>
+                                        <p th:text="|${vitb12} &#181;g (${dailyvitb12} %)|" />
+                                    </div>
+                                </div>
+                                <div class="w3-container w3-cell">
+                                    <div class="w3-panel w3-blue w3-card-8 w3-round">
+                                        <p>Vitamin C</p>
+                                        <p th:text="|${vitc} mg (${dailyvitc} %)|" />
+                                    </div>
+                                </div>
+                                <div class="w3-container w3-cell">
+                                    <div class="w3-panel w3-blue w3-card-8 w3-round">
+                                        <p>Vitamin D</p>
+                                        <p th:text="|${vitd} &#181;g (${dailyvitd} %)|" />
+                                    </div>
+                                </div>
+                        </div> -->
+                        <br />
 
                         <div class="w3-hide-small w3-row">
                             <div class="w3-half">
                                 <div class="w3-container" id="piechart"></div>
                             </div>
 
-                            <div class="w3-half" th:if="${columnchart}">
+                            <div class="w3-half w3-hide-medium" th:if="${columnchart}">
                                 <div class="w3-container" id="columnchart_values"></div>
                             </div>
 
@@ -178,7 +236,7 @@
                         </div>
 
                         <div th:each="meal: ${meals}">
-                            <button th:onclick="|myFunction('${meal.id}')|" class="w3-button w3-block w3-left-align" >Date: <span th:text="${meal.time}" />, <a th:href="@{~/viewmeal?id={id} (id=${meal.id})}" >View</a></button>
+                            <button th:onclick="|myFunction('${meal.id}')|" class="w3-button w3-block w3-left-align" style="overflow: hidden;">Date: <span th:text="${meal.time}" />, <a th:href="@{~/viewmeal?id={id} (id=${meal.id})}" >View</a> <span th:each="component: ${meal.components}" th:text="|, ${component.name}|"></span></button>
                             <div th:attr="id=${meal.id}" class="w3-hide w3-container">
                                 <ul class="w3-ul w3-hoverable" th:each="component: ${meal.components}">
                                     <li><span th:text="${component.name}"></span>, <span th:text="${component.mass}"></span> g<div class="w3-hide-small" style="display: inline;">, Calories <span th:text="${component.totalCaloriesRounded}" /> kcal, Carbohydrate <span th:text="${component.totalCarbohydrateRounded}" /> g, Fat <span th:text="${component.totalFatRounded}" /> g, Protein <span th:text="${component.totalProteinRounded}" /> g</div></li>

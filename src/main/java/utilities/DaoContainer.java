@@ -10,7 +10,7 @@ import daos.FoodstuffDao;
 import daos.PermissionDao;
 import daos.SessionControlDao;
 import daos.UserDao;
-import daos.mealdiary.CookingDao;
+import daos.mealdiary.IngredientCollectionDao;
 import daos.mealdiary.IngredientDao;
 import daos.mealdiary.MealComponentDao;
 import daos.mealdiary.MealDao;
@@ -25,18 +25,18 @@ public class DaoContainer {
     private MealComponentDao mealComponent;
     private SessionControlDao sessionControl;
     private IngredientDao ingredient;
-    private CookingDao cooking;
+    private IngredientCollectionDao ingredientCollection;
     private FoodstuffDao foodstuff;
     private BugReportDao bugReport;
     private PermissionDao permission;
 
-    public DaoContainer(UserDao user, MealDao meal, MealComponentDao mealComponent, SessionControlDao sessionControl, IngredientDao ingredient, CookingDao cooking, FoodstuffDao foodstuff, BugReportDao bugReport, PermissionDao permission) {
+    public DaoContainer(UserDao user, MealDao meal, MealComponentDao mealComponent, SessionControlDao sessionControl, IngredientDao ingredient, IngredientCollectionDao ingredientCollection, FoodstuffDao foodstuff, BugReportDao bugReport, PermissionDao permission) {
         this.user = user;
         this.meal = meal;
         this.mealComponent = mealComponent;
         this.sessionControl = sessionControl;
         this.ingredient = ingredient;
-        this.cooking = cooking;
+        this.ingredientCollection = ingredientCollection;
         this.foodstuff = foodstuff;
         this.bugReport = bugReport;
         this.permission = permission;
@@ -62,8 +62,8 @@ public class DaoContainer {
         return ingredient;
     }
 
-    public CookingDao getCooking() {
-        return cooking;
+    public IngredientCollectionDao getIngredientCollection() {
+        return ingredientCollection;
     }
 
     public FoodstuffDao getFoodstuff() {
@@ -77,8 +77,4 @@ public class DaoContainer {
     public PermissionDao getPermission() {
         return permission;
     }
-    
-    
-    
-    
 }

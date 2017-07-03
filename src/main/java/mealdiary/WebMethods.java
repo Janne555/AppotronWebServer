@@ -30,6 +30,7 @@ import storables.mealdiary.*;
 import static utilities.JsonUtil.json;
 import utilities.PasswordUtil;
 import utilities.Container;
+import utilities.DailyAmounts;
 import utilities.DaoContainer;
 
 /**
@@ -37,6 +38,7 @@ import utilities.DaoContainer;
  * @author Janne
  */
 public class WebMethods {
+
     public WebMethods(DaoContainer daos) {
 
         setupRoutes(daos);
@@ -50,7 +52,7 @@ public class WebMethods {
         viewRoutes(daos);
         frontPageRoutes(daos);
         editRoutes(daos);
-        cookingRoutes(daos);
+        ingredientCollectionRoutes(daos);
         deleteRoutes(daos);
         toolRoutes(daos);
 
@@ -120,64 +122,61 @@ public class WebMethods {
             map.put("user", user);
 
             map.put("title", "Add Foodstuff");
-            map.put("labelname", "Name");
-            map.put("labelidentifier", "Serial Number");
+            map.put("labelname", "Name:");
+            map.put("labelidentifier", "Serial Number:");
             map.put("foodstuff", true);
             map.put("copies", true);
             map.put("calories", 0);
             map.put("carbohydrate", 0);
             map.put("fat", 0);
             map.put("protein", 0);
+            map.put("iron", 0);
+            map.put("sodium", 0);
+            map.put("potassium", 0);
+            map.put("calcium", 0);
+            map.put("vitb12", 0);
+            map.put("vitc", 0);
+            map.put("vitd", 0);
+            map.put("globalfoodstuff", true);
 
-            map.put("action", "/addfoodstuff.post");
+            map.put("action", "/addglobalfoodstuff.post");
             map.put("locations", daos.getFoodstuff().getLocations(user));
             return new ModelAndView(map, "additem");
         }, new ThymeleafTemplateEngine());
 
-        post("/addfoodstuff.post", (req, res) -> {
+        post("/addglobalfoodstuff.post", (req, res) -> {
             User user = (User) req.session().attribute("user");
 
             String name = req.queryParams("name");
             String identifier = req.queryParams("identifier");
             String producer = req.queryParams("producer");
-            String location = req.queryParams("location");
             String caloriesString = req.queryParams("calories");
             String carbohydrateString = req.queryParams("carbohydrate");
             String fatString = req.queryParams("fat");
             String proteinString = req.queryParams("protein");
-            String expirationString = req.queryParams("expiration");
+            String ironString = req.queryParams("iron");
+            String sodiumString = req.queryParams("sodium");
+            String potassiumString = req.queryParams("potassium");
+            String calciumString = req.queryParams("calcium");
+            String vitb12String = req.queryParams("vitb12");
+            String vitcString = req.queryParams("vitc");
+            String vitdString = req.queryParams("vitd");
 
             try {
                 float calories = Float.parseFloat(caloriesString) / 100;
                 float carbohydrate = Float.parseFloat(carbohydrateString) / 100;
                 float fat = Float.parseFloat(fatString) / 100;
                 float protein = Float.parseFloat(proteinString) / 100;
+                float iron = Float.parseFloat(ironString) / 100;
+                float sodium = Float.parseFloat(sodiumString) / 100;
+                float potassium = Float.parseFloat(potassiumString) / 100;
+                float calcium = Float.parseFloat(calciumString) / 100;
+                float vitb12 = Float.parseFloat(vitb12String) / 100;
+                float vitc = Float.parseFloat(vitcString) / 100;
+                float vitd = Float.parseFloat(vitdString) / 100;
+                Foodstuff foodstuff = new Foodstuff(name, identifier, producer, null, 0, 0, 0, null, new Timestamp(System.currentTimeMillis()), calories, carbohydrate, fat, protein, iron, sodium, potassium, calcium, vitb12, vitc, vitd);
 
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                LocalDate time = LocalDate.parse(expirationString, formatter);
-                Timestamp expiration = Timestamp.valueOf(time.atStartOfDay());
-
-                int copies = 1;
-                String copyString = req.queryParams("copies");
-                if (copyString != null) {
-                    copies = Integer.parseInt(req.queryParams("copies"));
-                }
-
-                for (int i = 0; i < copies; i++) {
-                    Foodstuff foodstuff = new Foodstuff(name,
-                            identifier,
-                            producer,
-                            location,
-                            calories,
-                            carbohydrate,
-                            fat,
-                            protein,
-                            0, 0, 0,
-                            expiration,
-                            new Timestamp(System.currentTimeMillis()));
-
-                    daos.getFoodstuff().store(foodstuff, user);
-                }
+                daos.getFoodstuff().storeGlobal(foodstuff);
             } catch (NumberFormatException e) {
                 res.redirect("/fail?msg=" + e);
             }
@@ -196,10 +195,10 @@ public class WebMethods {
             if (idStr != null) {
                 try {
                     int id = Integer.parseInt(idStr);
-                    Cooking cooking = daos.getCooking().findOne(id);
-                    if (cooking != null) {
-                        Foodstuff foodstuff = new Foodstuff(cooking.getName(), cooking.getIdentifier(), "USER", "COOK BOOK", cooking.getCalories(), cooking.getCarbohydrate(), cooking.getFat(), cooking.getProtein(), 0, 0, 0, new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis()));
-                        daos.getFoodstuff().store(foodstuff, user);
+                    IngredientCollection ingCol = daos.getIngredientCollection().findOne(id, user);
+                    if (ingCol != null) {
+                        Foodstuff foodstuff = new Foodstuff(ingCol.getName(), ingCol.getIdentifier(), user.getUsername(), null, 0, 0, 0, null, ingCol.getDate(), ingCol.getCalories(), ingCol.getCarbohydrate(), ingCol.getFat(), ingCol.getProtein(), ingCol.getIron(), ingCol.getSodium(), ingCol.getPotassium(), ingCol.getCalcium(), ingCol.getVitB12(), ingCol.getVitC(), ingCol.getVitD());
+                        daos.getFoodstuff().storeGlobal(foodstuff);
                     }
 
                 } catch (NumberFormatException e) {
@@ -409,6 +408,13 @@ public class WebMethods {
                 float protein = 0;
                 float fat = 0;
                 float carbs = 0;
+                float iron = 0;
+                float sodium = 0;
+                float potassium = 0;
+                float calcium = 0;
+                float vitb12 = 0;
+                float vitc = 0;
+                float vitd = 0;
 
                 List<Container> dailyTotals = daos.getMeal().dailyTotals(user, from, to);
                 for (Container c : dailyTotals) {
@@ -416,15 +422,36 @@ public class WebMethods {
                     protein += c.getProtein();
                     fat += c.getFat();
                     carbs += c.getCarbohydrate();
+                    iron = c.getIron();
+                    sodium = c.getSodium();
+                    potassium = c.getPotassium();
+                    calcium = c.getCalcium();
+                    vitb12 = c.getVitB12();
+                    vitc = c.getVitC();
+                    vitd = c.getVitD();
                     c.round();
                 }
 
                 map.put("dailyaverages", dailyTotals);
 
+                map.put("iron", Math.round(iron / dailyTotals.size()));
+                map.put("sodium", Math.round(sodium / dailyTotals.size()));
+                map.put("potassium", Math.round(potassium / dailyTotals.size()));
+                map.put("calcium", Math.round(calcium / dailyTotals.size()));
+                map.put("vitb12", Math.round(vitb12 / dailyTotals.size()));
+                map.put("vitc", Math.round(vitc / dailyTotals.size()));
+                map.put("vitd", Math.round(vitd / dailyTotals.size()));
                 map.put("calories", Math.round(calories / dailyTotals.size()));
                 map.put("protein", Math.round(protein / dailyTotals.size()));
                 map.put("carbs", Math.round(carbs / dailyTotals.size()));
                 map.put("fat", Math.round(fat / dailyTotals.size()));
+                map.put("dailyiron", Math.round((iron / DailyAmounts.IRON.getValue() * 100)));
+                map.put("dailysodium", Math.round((iron / DailyAmounts.SODIUM.getValue() * 100)));
+                map.put("dailypotassium", Math.round((iron / DailyAmounts.POTASSIUM.getValue() * 100)));
+                map.put("dailycalcium", Math.round((iron / DailyAmounts.CALCIUM.getValue() * 100)));
+                map.put("dailyvitb12", Math.round((iron / DailyAmounts.VITB12.getValue() * 100)));
+                map.put("dailyvitc", Math.round((iron / DailyAmounts.VITC.getValue() * 100)));
+                map.put("dailyvitd", Math.round((iron / DailyAmounts.VITD.getValue() * 100)));
 
                 map.put("fromStr", fromStr);
                 map.put("toStr", toStr);
@@ -513,13 +540,13 @@ public class WebMethods {
     }
 
     private void searchRoutes(DaoContainer daos) {
-        get("/cookbook", (req, res) -> {
+        get("/ingredientcollections", (req, res) -> {
             HashMap map = new HashMap<>();
             User user = (User) req.session().attribute("user");
             map.put("user", user);
 
-            map.put("cookings", daos.getCooking().findAll());
-            map.put("title", "Cook Book");
+            map.put("ingredientcollections", daos.getIngredientCollection().findAll(user));
+            map.put("title", "Collections");
             return new ModelAndView(map, "list");
         }, new ThymeleafTemplateEngine());
 
@@ -588,6 +615,13 @@ public class WebMethods {
             map.put("carbohydrate", Math.round(foodstuff.getCarbohydrate() * 100));
             map.put("fat", Math.round(foodstuff.getFat() * 100));
             map.put("protein", Math.round(foodstuff.getProtein() * 100));
+            map.put("iron", Math.round(foodstuff.getIron() * 100));
+            map.put("sodium", Math.round(foodstuff.getSodium() * 100));
+            map.put("potassium", Math.round(foodstuff.getPotassium() * 100));
+            map.put("calcium", Math.round(foodstuff.getCalcium() * 100));
+            map.put("vitb12", Math.round(foodstuff.getVitB12() * 100));
+            map.put("vitc", Math.round(foodstuff.getVitC() * 100));
+            map.put("vitd", Math.round(foodstuff.getVitD() * 100));
             map.put("foodstuff", foodstuff);
             map.put("title", foodstuff.getName());
             map.put("type", "foodstuff");
@@ -596,7 +630,7 @@ public class WebMethods {
             return new ModelAndView(map, "view");
         }, new ThymeleafTemplateEngine());
 
-        get("/viewcooking", (req, res) -> {
+        get("/viewingredientcollection", (req, res) -> {
             HashMap map = new HashMap<>();
             User user = (User) req.session().attribute("user");
             map.put("user", user);
@@ -610,24 +644,31 @@ public class WebMethods {
                 halt();
             }
 
-            Cooking cooking = daos.getCooking().findOne(id);
-            if (cooking == null) {
+            IngredientCollection ingCol = daos.getIngredientCollection().findOne(id, user);
+            if (ingCol == null) {
                 res.redirect("/");
                 halt();
             } else {
-                Foodstuff findOne = daos.getFoodstuff().findOne(cooking.getName(), cooking.getIdentifier());
+                Foodstuff findOne = daos.getFoodstuff().findOne(ingCol.getName(), ingCol.getIdentifier());
                 if (findOne == null) {
                     map.put("notfoodstuffyet", true);
                 }
 
-                map.put("calories", Math.round(cooking.getCalories() * 100));
-                map.put("carbohydrate", Math.round(cooking.getCarbohydrate() * 100));
-                map.put("fat", Math.round(cooking.getFat() * 100));
-                map.put("protein", Math.round(cooking.getProtein() * 100));
-                map.put("cooking", cooking);
-                map.put("title", cooking.getName());
-                map.put("type", "cooking");
-                map.put("id", cooking.getId());
+                map.put("calories", Math.round(ingCol.getCalories() * 100));
+                map.put("carbohydrate", Math.round(ingCol.getCarbohydrate() * 100));
+                map.put("fat", Math.round(ingCol.getFat() * 100));
+                map.put("protein", Math.round(ingCol.getProtein() * 100));
+                map.put("iron", Math.round(ingCol.getIron() * 100));
+                map.put("sodium", Math.round(ingCol.getSodium() * 100));
+                map.put("potassium", Math.round(ingCol.getPotassium() * 100));
+                map.put("calcium", Math.round(ingCol.getCalcium() * 100));
+                map.put("vitb12", Math.round(ingCol.getVitB12() * 100));
+                map.put("vitc", Math.round(ingCol.getVitC() * 100));
+                map.put("vitd", Math.round(ingCol.getVitD() * 100));
+                map.put("ingredientcollection", ingCol);
+                map.put("title", ingCol.getName());
+                map.put("type", "ingredientcollection");
+                map.put("id", ingCol.getId());
             }
 
             return new ModelAndView(map, "view");
@@ -651,13 +692,36 @@ public class WebMethods {
                 halt();
             }
 
+            float iron = 0;
+            float sodium = 0;
+            float potassium = 0;
+            float calcium = 0;
+            float vitb12 = 0;
+            float vitc = 0;
+            float vitd = 0;
+
             String url = "/addmeal?";
             List<MealComponent> components;
             if ((components = meal.getComponents()) != null) {
                 for (MealComponent c : meal.getComponents()) {
                     url += "&id=" + c.getGlobalReferenceId();
+                    iron += c.getFoodstuff().getIron() * c.getMass();
+                    sodium += c.getFoodstuff().getSodium() * c.getMass();
+                    potassium += c.getFoodstuff().getPotassium() * c.getMass();
+                    calcium += c.getFoodstuff().getCalcium() * c.getMass();
+                    vitb12 += c.getFoodstuff().getVitB12() * c.getMass();
+                    vitc += c.getFoodstuff().getVitC() * c.getMass();
+                    vitd += c.getFoodstuff().getVitD() * c.getMass();
                 }
             }
+
+            map.put("iron", iron);
+            map.put("sodium", sodium);
+            map.put("potassium", potassium);
+            map.put("calcium", calcium);
+            map.put("vitb12", vitb12);
+            map.put("vitc", vitc);
+            map.put("vitd", vitd);
 
             map.put("url", url);
             map.put("meal", meal);
@@ -847,25 +911,23 @@ public class WebMethods {
         });
     }
 
-    private void cookingRoutes(DaoContainer daos) {
-        get("/addcooking", (req, res) -> {
+    private void ingredientCollectionRoutes(DaoContainer daos) {
+        get("/addingredientcollection", (req, res) -> {
             HashMap map = new HashMap<>();
             User user = (User) req.session().attribute("user");
             map.put("user", user);
-
-            map.put("addcooking", true);
-            map.put("action", "/addcooking.post");
+            map.put("title", "Add an Ingredient Collection");
+            
+            map.put("addingredientcollection", true);
+            map.put("action", "/addingredientcollection.post");
             return new ModelAndView(map, "addmeal");
         }, new ThymeleafTemplateEngine());
 
-        post("/addcooking.post", (req, res) -> {
+        post("/addingredientcollection.post", (req, res) -> {
             List<MealComponent> components = new ArrayList<>();
             User user = (User) req.session().attribute("user");
 
-            String name = req.queryParams("cookingname");
-            String directions = req.queryParams("directions");
-            String description = req.queryParams("description");
-            String cookingType = req.queryParams("cookingtype");
+            String name = req.queryParams("ingredientcollectionname");
             String totalMassString = req.queryParams("totalmass");
             float totalMass = 0;
             try {
@@ -875,16 +937,16 @@ public class WebMethods {
             } catch (NumberFormatException e) {
             }
 
-            Cooking cooking = new Cooking(0, name, totalMass, new Timestamp(System.currentTimeMillis()), null);
-            cooking = daos.getCooking().store(cooking);
+            IngredientCollection ingCol = new IngredientCollection(0, name, totalMass, new Timestamp(System.currentTimeMillis()), user, null);
+            ingCol = daos.getIngredientCollection().store(ingCol);
 
             for (String s : req.queryParamsValues("ingredients")) {
                 int id = Integer.parseInt(s);
                 float mass = Float.parseFloat(req.queryParams("amountfor:" + s));
-                Ingredient ingredient = new Ingredient(0, id, cooking.getId(), mass, 0, 0, 0, 0, daos.getFoodstuff().findOne(id));
-                daos.getIngredient().store(ingredient);
+                Ingredient ing = new Ingredient(0, id, ingCol.getId(), mass, null);
+                daos.getIngredient().store(ing);
             }
-            res.redirect("/viewcooking?id=" + cooking.getId());
+            res.redirect("/viewingredientcollection?id=" + ingCol.getId());
             return "";
         });
     }

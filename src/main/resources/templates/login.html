@@ -16,7 +16,7 @@
         </div>
     	<form class="w3-container" method="post" id="login">
             <label class="w3-label" for="username">Username</label>
-            <input class="w3-input" type="text" name="username" /><br/>
+            <input class="w3-input" type="text" name="username" autofocus="true" /><br/>
             <input hidden="true" type="text" name="redirect" th:value="${redirect}" />
             <label class="w3-label" for="password">Password</label>
             <input class="w3-input" type="password" name="password" /><br/>

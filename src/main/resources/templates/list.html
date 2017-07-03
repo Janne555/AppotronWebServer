@@ -104,22 +104,16 @@
                 </tr>
             </table>
         </div>
-        <div class="w3-responsive" th:if="${recipes}">
+        <div class="w3-responsive" th:if="${ingredientcollections}">
             <div class="w3-container w3-green" th:if="${search}">
-                <h3>Recipes</h3>
+                <h3>Collections</h3>
             </div>
             <table class="w3-table-all w3-hoverable">
                 <tr>
                     <th>Name</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                    <th>Calories</th>
                 </tr>
-                <tr class="clickable-row" th:each="item : ${recipes}" th:attr="data-href=@{~/viewrecipe?id={id} (id=${item.id})}">
+                <tr class="clickable-row" th:each="item : ${ingredientcollections}" th:attr="data-href=@{~/viewingredientcollection?id={id} (id=${item.id})}">
                     <td th:text="${item.name}"></td>
-                    <td th:text="${item.type}"></td>
-                    <td th:text="${item.description}"></td>
-                    <td th:text="${item.caloriesRelative}"></td>
                 </tr>
             </table>
         </div>
